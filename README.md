@@ -9,3 +9,5 @@ This is a repository containing all the projects that I have worked on in my C++
 * In this project, an A* algorithm is utilized to implement a path planning algorithm
     * Uses *OpenStreetMap* a free geodata provider.
     * Utilizes the A* search algorithm to find the shortest path between the *start* and *end* points.
+## Project 2: Linux System Monitor
+* Encapsulated in the folder `CppND-System-Monitor`
