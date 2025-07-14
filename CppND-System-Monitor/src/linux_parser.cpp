@@ -11,7 +11,8 @@ using std::string;
 using std::to_string;
 using std::vector;
 
-template <class T> T getValueFromFile(const string file_path, const string variable) {
+template <class T>
+T getValueFromFile(const string file_path, const string variable) {
   string line;
   string key;
   T result;
@@ -23,10 +24,9 @@ template <class T> T getValueFromFile(const string file_path, const string varia
         if (key == variable) {
           linestream >> result;
           return result;
-
         }
       }
-    } 
+    }
   }
   return result;
 }
@@ -88,18 +88,18 @@ vector<int> LinuxParser::Pids() {
 }
 
 // DONE: Read and return the system memory utilization
-float LinuxParser::MemoryUtilization() { 
+float LinuxParser::MemoryUtilization() {
   string file_path = kProcDirectory + kMeminfoFilename;
-  
-  const float mem_total = getValueFromFile<float> (file_path, "MemTotal:");
-  const float mem_free = getValueFromFile<float> (file_path, "MemFree:");
+
+  const float mem_total = getValueFromFile<float>(file_path, "MemTotal:");
+  const float mem_free = getValueFromFile<float>(file_path, "MemFree:");
 
   const float mem_util = (mem_total - mem_free) / mem_total;
   return mem_util;
 }
 
 // DONE: Read and return the system uptime
-long LinuxParser::UpTime() { 
+long LinuxParser::UpTime() {
   long uptime;
   string line;
   std::ifstream stream(kProcDirectory + kUptimeFilename);
@@ -115,20 +115,16 @@ long LinuxParser::UpTime() {
 vector<long> LinuxParser::getJiffies() {
   vector<string> jiffies_str = CpuUtilization();
   vector<long> jiffies_long(jiffies_str.size());
-  std::transform(jiffies_str.begin(), jiffies_str.end(), jiffies_long.begin(), [](const string& val)
-  {
-    return stol(val);
-  });
+  std::transform(jiffies_str.begin(), jiffies_str.end(), jiffies_long.begin(),
+                 [](const string& val) { return stol(val); });
   return jiffies_long;
 }
 
 // DONE: Read and return the number of jiffies for the system
-long LinuxParser::Jiffies() { 
-  return (ActiveJiffies() + IdleJiffies());
-}
+long LinuxParser::Jiffies() { return (ActiveJiffies() + IdleJiffies()); }
 
 // DONE: Read and return the number of active jiffies for a PID
-long LinuxParser::ActiveJiffies(int pid) { 
+long LinuxParser::ActiveJiffies(int pid) {
   string file_name = kProcDirectory + std::to_string(pid) + kStatFilename;
   int index = 13;
   string line;
@@ -139,39 +135,41 @@ long LinuxParser::ActiveJiffies(int pid) {
   if (stream.is_open()) {
     std::getline(stream, line);
     std::istringstream linestream(line);
-    for(int i = 0; i < index; i++) {
+    for (int i = 0; i < index; i++) {
       linestream >> val;
     }
     linestream >> utime >> stime >> cutime >> cstime;
-    result = std::stol(utime) + std::stol(stime) + std::stol(cutime) + std::stol(cstime);
+    result = std::stol(utime) + std::stol(stime) + std::stol(cutime) +
+             std::stol(cstime);
   }
-  return result/sysconf(_SC_CLK_TCK); 
+  return result / sysconf(_SC_CLK_TCK);
 }
 
 // DONE: Read and return the number of active jiffies for the system
-long LinuxParser::ActiveJiffies() { 
+long LinuxParser::ActiveJiffies() {
   vector<long> jiffies = getJiffies();
-  vector<CPUStates> non_idle = {kUser_, kNice_, kSystem_, kIRQ_, kSoftIRQ_, kSteal_};
+  vector<CPUStates> non_idle = {kUser_, kNice_,    kSystem_,
+                                kIRQ_,  kSoftIRQ_, kSteal_};
   long total = 0;
-  for(CPUStates state: non_idle) {
+  for (CPUStates state : non_idle) {
     total += jiffies[state];
   }
   return total;
 }
 
 // DONE: Read and return the number of idle jiffies for the system
-long LinuxParser::IdleJiffies() {   
+long LinuxParser::IdleJiffies() {
   vector<long> jiffies = getJiffies();
   vector<CPUStates> idle = {kIdle_, kIOwait_};
   long total = 0;
-  for(CPUStates state: idle) {
+  for (CPUStates state : idle) {
     total += jiffies[state];
   }
-  return total; 
+  return total;
 }
 
 // DONE: Read and return CPU utilization
-vector<string> LinuxParser::CpuUtilization() { 
+vector<string> LinuxParser::CpuUtilization() {
   vector<string> jiffies;
   string line;
   string index;
@@ -182,7 +180,7 @@ vector<string> LinuxParser::CpuUtilization() {
     std::istringstream linestream(line);
     linestream >> index;
     if (index == "cpu") {
-      for(int i = 0; i < 10; i++) {
+      for (int i = 0; i < 10; i++) {
         linestream >> val;
         jiffies.emplace_back(val);
       }
@@ -192,19 +190,20 @@ vector<string> LinuxParser::CpuUtilization() {
 }
 
 // DONE: Read and return the total number of processes
-int LinuxParser::TotalProcesses() { 
+int LinuxParser::TotalProcesses() {
   string file_path = kProcDirectory + kStatFilename;
 
-  const int total_processes = getValueFromFile<int> (file_path, "processes");
+  const int total_processes = getValueFromFile<int>(file_path, "processes");
 
   return total_processes;
 }
 
 // DONE: Read and return the number of running processes
-int LinuxParser::RunningProcesses() { 
+int LinuxParser::RunningProcesses() {
   string file_path = kProcDirectory + kStatFilename;
 
-  const int running_processes = getValueFromFile<int> (file_path, "procs_running");
+  const int running_processes =
+      getValueFromFile<int>(file_path, "procs_running");
 
   return running_processes;
 }
@@ -225,25 +224,25 @@ string LinuxParser::Command(int pid) {
 }
 
 // DONE: Read and return the memory used by a process
-string LinuxParser::Ram(int pid) { 
+string LinuxParser::Ram(int pid) {
   string file_path = kProcDirectory + std::to_string(pid) + kStatusFilename;
 
-  const long memory = getValueFromFile<long> (file_path, "VmSize:");
+  const long memory = getValueFromFile<long>(file_path, "VmSize:");
 
   return std::to_string(memory);
 }
 
 // DONE: Read and return the user ID associated with a process
-string LinuxParser::Uid(int pid) { 
+string LinuxParser::Uid(int pid) {
   string file_path = kProcDirectory + std::to_string(pid) + kStatusFilename;
 
-  const int uid = getValueFromFile<int> (file_path, "Uid:");
+  const int uid = getValueFromFile<int>(file_path, "Uid:");
 
   return std::to_string(uid);
 }
 
 // DONE: Read and return the user associated with a process
-string LinuxParser::User(int pid) { 
+string LinuxParser::User(int pid) {
   string line;
   string user;
   string uid = Uid(pid);
@@ -265,7 +264,7 @@ string LinuxParser::User(int pid) {
 }
 
 // DONE: Read and return the uptime of a process
-long LinuxParser::UpTime(int pid) { 
+long LinuxParser::UpTime(int pid) {
   string file_name = kProcDirectory + std::to_string(pid) + kStatFilename;
   int index = 22;
   string line;
@@ -275,10 +274,10 @@ long LinuxParser::UpTime(int pid) {
   if (stream.is_open()) {
     std::getline(stream, line);
     std::istringstream linestream(line);
-    for(int i = 0; i < index; i++) {
+    for (int i = 0; i < index; i++) {
       linestream >> val;
     }
-    time = std::stol(val)/sysconf(_SC_CLK_TCK);
+    time = std::stol(val) / sysconf(_SC_CLK_TCK);
   }
   return time;
 }

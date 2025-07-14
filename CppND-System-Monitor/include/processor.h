@@ -8,9 +8,9 @@ class Processor {
 
   // TODO: Declare any necessary private members
  private:
-    long prev_idle_;
-    long prev_active_;
-    long prev_total_;
+  long prev_idle_;
+  long prev_active_;
+  long prev_total_;
 };
 
 #endif
