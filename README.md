@@ -15,4 +15,4 @@ This is a repository containing all the projects that I have worked on in my C++
    * Uses *ncurses* to format the system monitor output.
    * Fetched necessary stats from the /proc directory.
 ## Project 3: Memory Management Chatbot
-* Encapsulated in the folder `CppND-Chat`
+* Encapsulated in the folder `CppND-Memory-Management-Chatbot`
